@@ -34,7 +34,7 @@ steps:
     platform: '$(buildPlatform)'
     testSelector: 'testAssemblies'
     testAssemblyVer2: |
-      **\Release\UnitTestProject1.build.appxrecipe
+      **\Release\CookiePieUwp.Tests.build.appxrecipe
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
