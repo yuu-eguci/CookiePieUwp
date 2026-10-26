@@ -163,9 +163,6 @@
     </PackageReference>
     <!-- Needed by the test platform under .NET Native (Release). Without it ILC reports
          ILT0003: runsettings methods "will always throw an exception". -->
-    <PackageReference Include="System.Xml.XPath.XmlDocument">
-      <Version>4.3.0</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CookiePieUwp\CookiePieUwp.csproj">
