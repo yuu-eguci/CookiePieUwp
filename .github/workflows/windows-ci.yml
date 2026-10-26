@@ -15,9 +15,9 @@ concurrency:
 
 jobs:
   build-and-test:
-    # The image ships VS 2022 with the UWP workload, .NET Native and Windows SDK 10.0.26100,
+    # The image ships VS 2026 with the UWP workload, .NET Native and Windows SDK 10.0.26100,
     # and enables Developer Mode at image build time.
-    runs-on: windows-2025
+    runs-on: windows-2025-vs2026
     timeout-minutes: 60
     defaults:
       run:
@@ -67,6 +67,6 @@ jobs:
           $code = $LASTEXITCODE
           python -I tools/ci/check_trx.py --trx TestResults/expected-failure.trx --exit-code $code --expect-failed AddOne_IntentionalFailure
 
-      - name: Build Release x64 app (.NET Native)
+      - name: Build Release x64 (.NET Native)
         run: |
-          & $env:MSBUILD CookiePieUwp\CookiePieUwp.csproj /restore /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+          & $env:MSBUILD CookiePieUwp.sln /restore /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
