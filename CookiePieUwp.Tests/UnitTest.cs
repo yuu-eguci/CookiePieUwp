@@ -1,16 +1,28 @@
-﻿
-using System;
+﻿using CookiePieUwp.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CookiePieUwp.Tests
 {
     [TestClass]
-    public class UnitTest1
+    public class UtilTests
     {
         [TestMethod]
-        public void TestMethod1()
+        [DataRow(1, 2)]
+        [DataRow(0, 1)]
+        [DataRow(-1, 0)]
+        public void AddOne_ReturnsNextInteger(int n, int expected)
         {
-            Assert.AreEqual(3, CookiePieUwp.Helpers.Util.AddOne(1), "1 + 1 is 2!");
+            Assert.AreEqual(expected, Util.AddOne(n));
         }
+
+#if EXPECTED_FAILURE_TEST
+        // Kept from the original CI experiment: this test must fail.
+        // Compiled only with /p:IncludeExpectedFailureTest=true (see README).
+        [TestMethod]
+        public void AddOne_IntentionalFailure()
+        {
+            Assert.AreEqual(3, Util.AddOne(1), "Intentional failure to prove CI reports failing tests.");
+        }
+#endif
     }
 }

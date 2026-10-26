@@ -3,11 +3,12 @@
 # Add steps that test and distribute an app, save build artifacts, and more:
 # https://aka.ms/yaml
 
-trigger:
-- master
+# Manual runs only. GitHub Actions (.github/workflows/windows-ci.yml) is the main CI.
+trigger: none
+pr: none
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-2025'
 
 variables:
   solution: '**/*.sln'
@@ -38,3 +39,5 @@ steps:
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
+    failOnMinTestsNotRun: true
+    minimumExpectedTests: '1'
