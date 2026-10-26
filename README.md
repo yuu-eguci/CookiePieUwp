@@ -25,7 +25,7 @@ macOS / Linux ではビルドもテストもできない (Docker の Linux コ�
 主な NuGet パッケージ:
 
 - `Microsoft.NETCore.UniversalWindowsPlatform` 6.2.14
-- `MSTest.TestFramework` / `MSTest.TestAdapter` 3.11.1
+- `MSTest.TestFramework` / `MSTest.TestAdapter` 4.5.1
 - `System.Xml.XPath.XmlDocument` 4.3.0
 
 ## ビルドとテスト

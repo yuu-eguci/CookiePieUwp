@@ -154,11 +154,13 @@
       <Version>6.2.14</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestAdapter">
-      <Version>3.11.1</Version>
+      <Version>4.5.1</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestFramework">
-      <Version>3.11.1</Version>
+      <Version>4.5.1</Version>
     </PackageReference>
+    <!-- Needed by the test platform under .NET Native (Release). Without it ILC reports
+         ILT0003: runsettings methods "will always throw an exception". -->
     <PackageReference Include="System.Xml.XPath.XmlDocument">
       <Version>4.3.0</Version>
     </PackageReference>
