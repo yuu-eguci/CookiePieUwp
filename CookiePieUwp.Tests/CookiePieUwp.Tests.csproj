@@ -153,6 +153,8 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>
     </PackageReference>
+    <!-- MSTest 4.x adds Microsoft.TestPlatform.ObjectModel, whose DLLs clash with the
+         TestPlatform.Universal SDK in the UWP test package (APPX1111). -->
     <PackageReference Include="MSTest.TestAdapter">
       <Version>3.11.1</Version>
     </PackageReference>

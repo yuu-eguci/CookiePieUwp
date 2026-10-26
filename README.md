@@ -68,7 +68,7 @@ vstest.console.exe CookiePieUwp.Tests\bin\x64\Debug\CookiePieUwp.Tests.build.app
 2. 開発者モードが有効か確認 (読み取りのみ。ランナーの設定は変更しない)
 3. Debug x64 でビルドしてテスト実行。実行件数が 0 件、または失敗が 1 件でもあればエラー
 4. わざと失敗するテストを入れて再ビルドし、`AddOne_IntentionalFailure` だけが失敗することを確認
-5. Release x64 (.NET Native) でアプリとテストをビルド
+5. Release x64 (.NET Native) でアプリとテストをビルド。.NET Native の ILT 警告が出たらエラー
 
 ### Azure Pipelines (`azure-pipelines.yml`)
 

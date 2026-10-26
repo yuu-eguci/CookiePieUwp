@@ -67,6 +67,10 @@ jobs:
           $code = $LASTEXITCODE
           python -I tools/ci/check_trx.py --trx TestResults/expected-failure.trx --exit-code $code --expect-failed AddOne_IntentionalFailure
 
+      # ILT warnings mean .NET Native dropped code that will throw at run time.
       - name: Build Release x64 (.NET Native)
         run: |
-          & $env:MSBUILD CookiePieUwp.sln /restore /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
+          & $env:MSBUILD CookiePieUwp.sln /restore /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64 "/flp:WarningsOnly;LogFile=release-warnings.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $ilt = Select-String -Path release-warnings.log -Pattern 'warning ILT\d+'
+          if ($ilt) { throw ".NET Native reported $($ilt.Count) ILT warning(s); see the build log." }
