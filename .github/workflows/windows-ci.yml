@@ -1,0 +1,72 @@
+name: windows-ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    # The image ships VS 2022 with the UWP workload, .NET Native and Windows SDK 10.0.26100,
+    # and enables Developer Mode at image build time.
+    runs-on: windows-2025
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      RECIPE: CookiePieUwp.Tests\bin\x64\Debug\CookiePieUwp.Tests.build.appxrecipe
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test TRX checker
+        run: python -I -m unittest discover -s tools/ci -p "test_*.py"
+
+      - name: Locate Visual Studio
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Workload.Universal -property installationPath
+          if (-not $vs) { throw "Visual Studio with the UWP workload was not found." }
+          "MSBUILD=$vs\MSBuild\Current\Bin\MSBuild.exe" >> $env:GITHUB_ENV
+          "VSTEST=$vs\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" >> $env:GITHUB_ENV
+
+      # Read only: unsigned UWP test apps can be registered only in Developer Mode.
+      - name: Check Developer Mode
+        run: |
+          $value = Get-ItemPropertyValue -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock' -Name AllowDevelopmentWithoutDevLicense -ErrorAction SilentlyContinue
+          if ($value -ne 1) { throw "Developer Mode is not enabled on this runner." }
+
+      - name: Build Debug x64
+        run: |
+          & $env:MSBUILD CookiePieUwp.sln /restore /m /nologo /v:minimal /p:Configuration=Debug /p:Platform=x64
+
+      # vstest exits non-zero on test failures; check_trx.py judges the result instead.
+      - name: Run tests
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          & $env:VSTEST $env:RECIPE /Platform:x64 /Framework:FrameworkUap10 "/Logger:trx;LogFileName=default.trx" /ResultsDirectory:TestResults
+          $code = $LASTEXITCODE
+          python -I tools/ci/check_trx.py --trx TestResults/default.trx --exit-code $code
+
+      # Proves that a failing test really fails CI (the original CI experiment).
+      - name: Run intentional failure test
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          & $env:MSBUILD CookiePieUwp.Tests\CookiePieUwp.Tests.csproj /t:Rebuild /restore /m /nologo /v:minimal /p:Configuration=Debug /p:Platform=x64 /p:IncludeExpectedFailureTest=true
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $env:VSTEST $env:RECIPE /Platform:x64 /Framework:FrameworkUap10 "/Logger:trx;LogFileName=expected-failure.trx" /ResultsDirectory:TestResults
+          $code = $LASTEXITCODE
+          python -I tools/ci/check_trx.py --trx TestResults/expected-failure.trx --exit-code $code --expect-failed AddOne_IntentionalFailure
+
+      - name: Build Release x64 app (.NET Native)
+        run: |
+          & $env:MSBUILD CookiePieUwp\CookiePieUwp.csproj /restore /m /nologo /v:minimal /p:Configuration=Release /p:Platform=x64
